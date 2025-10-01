@@ -1,6 +1,6 @@
 {
   "name": "htmx-ext-skeleton",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An htmx extension for displaying skeleton screens during AJAX requests",
   "main": "htmx-ext-skeleton.js",
   "keywords": [
