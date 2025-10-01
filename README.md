@@ -69,6 +69,30 @@ If you need multiple different skeletons, specify a custom template ID:
 </div>
 ```
 
+### Alpine.js Integration (Optional)
+
+If Alpine.js is detected, you can pass data to your skeleton template using `hx-skeleton-alpine`:
+
+```html
+<script type="text/template" id="skeleton">
+  <div>
+    <h3 x-text="title"></h3>
+    <template x-for="i in count">
+      <div class="skeleton-item"></div>
+    </template>
+  </div>
+</script>
+
+<div hx-ext="skeleton"
+     hx-get="/api/data"
+     hx-target="#content"
+     hx-skeleton-alpine='{"title": "Loading", "count": 3}'>
+  Load Data
+</div>
+```
+
+**Note**: The JSON in `hx-skeleton-alpine` must use double quotes for property names and string values. You don't need to add `x-data` to your template - the extension handles that automatically.
+
 ## Features
 
 - **Zero configuration**: Just add `hx-ext="skeleton"` and create a template with `id="skeleton"`
@@ -77,6 +101,7 @@ If you need multiple different skeletons, specify a custom template ID:
 - **Error handling**: Restores original content if request fails
 - **History support**: Properly handles browser back/forward navigation
 - **Multiple skeletons**: Override with `hx-skeleton="custom-id"` for custom templates
+- **Alpine.js support**: Optional integration with Alpine.js for dynamic skeleton templates
 
 ## How it works
 

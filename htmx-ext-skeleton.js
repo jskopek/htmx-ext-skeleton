@@ -1,22 +1,7 @@
 /**
  * htmx-ext-skeleton
- *
  * An htmx extension for displaying skeleton screens during AJAX requests
- *
- * Usage:
- *   <!-- Default skeleton (uses id="skeleton") -->
- *   <div hx-ext="skeleton" hx-get="/api/data" hx-target="#content">
- *
- *   <script type="text/template" id="skeleton">
- *     <div class="skeleton-placeholder">Loading...</div>
- *   </script>
- *
- *   <!-- Custom skeleton -->
- *   <div hx-ext="skeleton" hx-get="/api/data" hx-target="#content" hx-skeleton="my-skeleton">
- *
- *   <script type="text/template" id="my-skeleton">
- *     <div class="skeleton-placeholder">Loading...</div>
- *   </script>
+ * See https://github.com/jskopek/htmx-ext-skeleton for documentation
  */
 (function() {
     // Store skeleton states - use target element as key
@@ -56,6 +41,9 @@
             // Get skeleton ID - use default "skeleton" if not specified
             const skeletonId = elt.getAttribute('hx-skeleton') || 'skeleton';
 
+            // Get Alpine.js data if specified
+            const alpineDataAttr = elt.getAttribute('hx-skeleton-alpine');
+
             // Get the target element
             const targetSelector = elt.getAttribute('hx-target');
             if (!targetSelector) {
@@ -77,7 +65,7 @@
 
                 // Store the original content
                 const originalContent = target.innerHTML;
-                const skeletonContent = skeletonScript.textContent || skeletonScript.innerHTML;
+                let skeletonContent = skeletonScript.textContent || skeletonScript.innerHTML;
 
                 // Store original content using the target element as key
                 skeletonStates.set(target, originalContent);
@@ -85,6 +73,31 @@
                 // Show skeleton immediately
                 target.innerHTML = skeletonContent;
                 target.classList.add('skeleton-loading');
+
+                // Initialize Alpine.js if data is provided and Alpine is available
+                if (alpineDataAttr && window.Alpine) {
+                    try {
+                        const alpineData = JSON.parse(alpineDataAttr);
+                        // Find or use the first child element for Alpine
+                        let alpineElement = target.querySelector('[x-data]');
+                        if (!alpineElement) {
+                            // If no x-data element exists, use the first child
+                            alpineElement = target.firstElementChild;
+                        }
+                        if (alpineElement) {
+                            // Add x-data attribute if it doesn't exist
+                            if (!alpineElement.hasAttribute('x-data')) {
+                                alpineElement.setAttribute('x-data', '{}');
+                            }
+                            // Store the data for Alpine to pick up
+                            alpineElement._x_dataStack = [alpineData];
+                            // Initialize Alpine on this element
+                            window.Alpine.initTree(alpineElement);
+                        }
+                    } catch (e) {
+                        console.warn('Failed to parse hx-skeleton-alpine data:', e);
+                    }
+                }
             }
 
             // Handle htmx:beforeSwap - remove skeleton just before swapping in new content
