@@ -7,22 +7,9 @@ An htmx extension for displaying skeleton screens during AJAX requests.
 ### Via CDN
 
 ```html
-<script src="https://unpkg.com/htmx.org@1.9.0"></script>
-<script src="https://unpkg.com/htmx-ext-skeleton@latest/htmx-ext-skeleton.js"></script>
-```
-
-Or using jsDelivr:
-
-```html
-<script src="https://unpkg.com/htmx.org@1.9.0"></script>
-<script src="https://cdn.jsdelivr.net/npm/htmx-ext-skeleton@latest/htmx-ext-skeleton.js"></script>
-```
-
-Or directly from GitHub:
-
-```html
-<script src="https://unpkg.com/htmx.org@1.9.0"></script>
-<script src="https://cdn.jsdelivr.net/gh/jskopek/htmx-ext-skeleton@main/htmx-ext-skeleton.js"></script>
+<script src="https://unpkg.com/htmx.org"></script>
+<script src="https://unpkg.com/htmx-ext-skeleton"></script> 
+<!-- can also use jsdelivr.net: https://cdn.jsdelivr.net/npm/htmx-ext-skeleton -->
 ```
 
 ### Via npm
