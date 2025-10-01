@@ -1,6 +1,6 @@
 # htmx-ext-skeleton
 
-An htmx extension for displaying skeleton screens during AJAX requests.
+An htmx extension for displaying skeleton screens during requests.
 
 ## Installation
 
@@ -9,7 +9,6 @@ An htmx extension for displaying skeleton screens during AJAX requests.
 ```html
 <script src="https://unpkg.com/htmx.org"></script>
 <script src="https://unpkg.com/htmx-ext-skeleton"></script> 
-<!-- can also use jsdelivr.net: https://cdn.jsdelivr.net/npm/htmx-ext-skeleton -->
 ```
 
 ### Via npm
