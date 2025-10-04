@@ -64,27 +64,38 @@
                 return;
             }
 
-            // Get skeleton ID - use default "skeleton" if not specified
-            const skeletonId = elt.getAttribute('hx-skeleton') || 'skeleton';
+            // Get skeleton selector - use default "#skeleton" if not specified
+            const skeletonSelector = elt.getAttribute('hx-skeleton') || '#skeleton';
 
             // Get Alpine.js data if specified
             const alpineDataAttr = elt.getAttribute('hx-skeleton-alpine');
 
-            // Get the target element
-            const targetSelector = elt.getAttribute('hx-target');
-            if (!targetSelector) {
-                return;
+            // Get the target element - priority: hx-skeleton-target, hx-target, htmx default
+            let target;
+            const skeletonTargetSelector = elt.getAttribute('hx-skeleton-target');
+
+            if (skeletonTargetSelector) {
+                // Use hx-skeleton-target if specified
+                target = document.querySelector(skeletonTargetSelector);
+            } else {
+                const hxTargetSelector = elt.getAttribute('hx-target');
+                if (hxTargetSelector) {
+                    // Use hx-target if specified
+                    target = document.querySelector(hxTargetSelector);
+                } else {
+                    // Use htmx's default target resolution
+                    target = htmx.closest(elt, htmx.config.defaultSwapTarget) || elt;
+                }
             }
 
-            const target = document.querySelector(targetSelector);
             if (!target) {
                 return;
             }
 
             // Handle htmx:beforeRequest - show skeleton immediately
             if (name === 'htmx:beforeRequest') {
-                // Find the skeleton template
-                const skeletonScript = document.getElementById(skeletonId);
+                // Find the skeleton template using querySelector
+                const skeletonScript = document.querySelector(skeletonSelector);
                 if (!skeletonScript) {
                     return;
                 }

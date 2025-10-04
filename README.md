@@ -54,7 +54,7 @@ import 'htmx-ext-skeleton';
 
 ### Custom Skeleton (Optional)
 
-If you need multiple different skeletons, specify a custom template ID:
+If you need multiple different skeletons, specify a custom template using any CSS selector:
 
 ```html
 <script type="text/template" id="custom-skeleton">
@@ -64,10 +64,33 @@ If you need multiple different skeletons, specify a custom template ID:
 <div hx-ext="skeleton"
      hx-get="/api/data"
      hx-target="#content"
-     hx-skeleton="custom-skeleton">
+     hx-skeleton="#custom-skeleton">
   Load Data
 </div>
 ```
+
+### Custom Skeleton Target (Optional)
+
+Use `hx-skeleton-target` to display the skeleton in a different element than the swap target:
+
+```html
+<button hx-ext="skeleton"
+        hx-get="/api/data"
+        hx-target="#results"
+        hx-skeleton-target="#loading-area">
+  Load Data
+</button>
+
+<div id="loading-area">
+  <!-- Skeleton appears here -->
+</div>
+
+<div id="results">
+  <!-- Data swaps here -->
+</div>
+```
+
+If `hx-skeleton-target` is not specified, the extension falls back to `hx-target`, and if that's not present, it uses htmx's default target (the element itself).
 
 ### Alpine.js Integration (Optional)
 
@@ -97,7 +120,8 @@ If Alpine.js is detected, you can override and extend data in your skeleton temp
 - **Automatic cleanup**: Removes skeleton when new content arrives
 - **Error handling**: Restores original content if request fails
 - **History support**: Properly handles browser back/forward navigation
-- **Multiple skeletons**: Override with `hx-skeleton="custom-id"` for custom templates
+- **Multiple skeletons**: Use `hx-skeleton` with any CSS selector for custom templates
+- **Custom targets**: Use `hx-skeleton-target` to display skeleton in a different element than the swap target
 - **Alpine.js support**: Optional integration with Alpine.js for dynamic skeleton templates
 
 ## How it works
