@@ -22,7 +22,7 @@ module.exports = defineConfig({
 
   // Start test server automatically
   webServer: {
-    command: 'node tests/fixtures/server.js --port=3001 --delay=500',
+    command: 'node tests/fixtures/server.js --port=3001 --delay=1000',
     port: 3001,
     timeout: 10000,
     reuseExistingServer: !process.env.CI,

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - htmx events</title>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script src="../htmx-ext-skeleton.js"></script>
+    <style>
+        .skeleton-line {
+            height: 20px;
+            background: #e0e0e0;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .skeleton-loading {
+            opacity: 0.7;
+        }
+        #content {
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        #log {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 400px;
+            height: 300px;
+            background: black;
+            color: lime;
+            font-family: monospace;
+            font-size: 11px;
+            overflow-y: scroll;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Debug Page</h1>
+
+    <script type="text/template" id="skeleton">
+        <div class="skeleton-placeholder">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+        </div>
+    </script>
+
+    <button
+        id="load-button"
+        hx-ext="skeleton"
+        hx-get="/tests/fixtures/content.html"
+        hx-target="#content"
+        hx-push-url="true">
+        Load Content
+    </button>
+
+    <div id="content">
+        <p id="original-content">This is the original content</p>
+    </div>
+
+    <div id="log"></div>
+
+    <script>
+        const log = document.getElementById('log');
+        function logEvent(name) {
+            const entry = document.createElement('div');
+            entry.textContent = new Date().toISOString().substr(11, 12) + ' - ' + name;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Log all htmx events
+        document.body.addEventListener('htmx:beforeRequest', () => logEvent('beforeRequest'));
+        document.body.addEventListener('htmx:beforeSwap', () => logEvent('beforeSwap'));
+        document.body.addEventListener('htmx:afterSwap', () => logEvent('afterSwap'));
+        document.body.addEventListener('htmx:beforeHistorySave', () => logEvent('beforeHistorySave'));
+        document.body.addEventListener('htmx:historyRestore', () => logEvent('historyRestore'));
+    </script>
+</body>
+</html>

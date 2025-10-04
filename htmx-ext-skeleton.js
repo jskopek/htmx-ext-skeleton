@@ -4,33 +4,59 @@
  * See https://github.com/jskopek/htmx-ext-skeleton for documentation
  */
 (function() {
-    // Store skeleton states - use target element as key
-    const skeletonStates = new Map();
+    // Store original content before skeleton - key is a unique ID per request
+    const originalContentStore = new Map();
+    // Track the currently active skeleton (if any) - don't restore this one in beforeHistorySave
+    let currentlyLoadingSkeletonId = null;
+
+    // Set up global event listeners for swap/history events (these need to be global)
+    document.body.addEventListener('htmx:beforeSwap', function(evt) {
+        const swapTarget = evt.detail.target;
+        if (swapTarget && swapTarget.classList.contains('skeleton-loading')) {
+            swapTarget.classList.remove('skeleton-loading');
+        }
+        currentlyLoadingSkeletonId = null; // Request completed
+    });
+
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+        const swapTarget = evt.detail.target;
+        if (swapTarget) {
+            const skeletonInstanceId = swapTarget.getAttribute('data-skeleton-id');
+            if (skeletonInstanceId) {
+                // Clean up after successful swap
+                originalContentStore.delete(skeletonInstanceId);
+                swapTarget.removeAttribute('data-skeleton-id');
+            }
+        }
+    });
+
+    document.body.addEventListener('htmx:beforeHistorySave', function() {
+        // Restore original content before htmx saves the DOM snapshot
+        // This prevents the skeleton from being cached in history
+        // BUT: don't restore the currently loading skeleton - that would make it disappear!
+        document.querySelectorAll('[data-skeleton-id]').forEach(target => {
+            const id = target.getAttribute('data-skeleton-id');
+            const original = id && originalContentStore.get(id);
+
+            // Only restore if this is NOT the currently loading skeleton
+            if (original && id !== currentlyLoadingSkeletonId) {
+                target.innerHTML = original;
+                target.classList.remove('skeleton-loading');
+                originalContentStore.delete(id);
+                target.removeAttribute('data-skeleton-id');
+            }
+        });
+    });
+
+    document.body.addEventListener('htmx:historyRestore', function() {
+        // Remove skeleton-loading class from any elements (safety cleanup)
+        document.querySelectorAll('.skeleton-loading').forEach(el => {
+            el.classList.remove('skeleton-loading');
+        });
+    });
 
     htmx.defineExtension('skeleton', {
         onEvent: function (name, evt) {
-            // Handle htmx:historyRestore - this fires when back/forward button restores from cache
-            if (name === 'htmx:historyRestore') {
-                // Remove skeleton-loading class from any elements
-                document.querySelectorAll('.skeleton-loading').forEach(el => {
-                    el.classList.remove('skeleton-loading');
-                });
-                return;
-            }
-
-            // Handle htmx:beforeHistorySave - restore original content before caching
-            if (name === 'htmx:beforeHistorySave') {
-                // Find all elements with skeleton-loading class and restore their original content
-                document.querySelectorAll('.skeleton-loading').forEach(target => {
-                    const originalContent = skeletonStates.get(target);
-                    if (originalContent) {
-                        target.innerHTML = originalContent;
-                        target.classList.remove('skeleton-loading');
-                    }
-                });
-                return;
-            }
-
             const elt = evt.detail.elt;
 
             // Check if element has skeleton extension enabled
@@ -67,8 +93,14 @@
                 const originalContent = target.innerHTML;
                 let skeletonContent = skeletonScript.textContent || skeletonScript.innerHTML;
 
-                // Store original content using the target element as key
-                skeletonStates.set(target, originalContent);
+                // Store original content with target element reference
+                // Use a data attribute to track this specific skeleton instance
+                const skeletonInstanceId = 'skeleton-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                target.setAttribute('data-skeleton-id', skeletonInstanceId);
+                originalContentStore.set(skeletonInstanceId, originalContent);
+
+                // Track this as the currently loading skeleton
+                currentlyLoadingSkeletonId = skeletonInstanceId;
 
                 // Show skeleton immediately
                 target.innerHTML = skeletonContent;
@@ -101,18 +133,16 @@
                 }
             }
 
-            // Handle htmx:beforeSwap - remove skeleton just before swapping in new content
-            if (name === 'htmx:beforeSwap') {
-                target.classList.remove('skeleton-loading');
-                skeletonStates.delete(target);
-            }
-
             // Handle errors - restore original content if request fails
             if (name === 'htmx:responseError' || name === 'htmx:sendError') {
-                const originalContent = skeletonStates.get(target);
-                if (originalContent) {
-                    target.innerHTML = originalContent;
-                    skeletonStates.delete(target);
+                const skeletonId = target.getAttribute('data-skeleton-id');
+                if (skeletonId) {
+                    const originalContent = originalContentStore.get(skeletonId);
+                    if (originalContent) {
+                        target.innerHTML = originalContent;
+                        originalContentStore.delete(skeletonId);
+                    }
+                    target.removeAttribute('data-skeleton-id');
                 }
                 target.classList.remove('skeleton-loading');
             }
