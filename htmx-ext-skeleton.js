@@ -74,28 +74,29 @@
                 target.innerHTML = skeletonContent;
                 target.classList.add('skeleton-loading');
 
-                // Initialize Alpine.js if data is provided and Alpine is available
+                // If Alpine.js data is provided, update the Alpine component after initialization
                 if (alpineDataAttr && window.Alpine) {
                     try {
                         const alpineData = JSON.parse(alpineDataAttr);
-                        // Find or use the first child element for Alpine
-                        let alpineElement = target.querySelector('[x-data]');
+
+                        // Find the Alpine element in the target
+                        const alpineElement = target.querySelector('[x-data]');
                         if (!alpineElement) {
-                            // If no x-data element exists, use the first child
-                            alpineElement = target.firstElementChild;
+                            console.warn('hx-skeleton-alpine requires the skeleton template to have an element with x-data attribute');
+                            return;
                         }
-                        if (alpineElement) {
-                            // Add x-data attribute if it doesn't exist
-                            if (!alpineElement.hasAttribute('x-data')) {
-                                alpineElement.setAttribute('x-data', '{}');
+
+                        // Wait for Alpine to initialize, then update the data
+                        // Use nextTick to ensure Alpine has initialized the component
+                        window.Alpine.nextTick(() => {
+                            // Get the Alpine component's $data and update it
+                            const component = window.Alpine.$data(alpineElement);
+                            if (component) {
+                                Object.assign(component, alpineData);
                             }
-                            // Store the data for Alpine to pick up
-                            alpineElement._x_dataStack = [alpineData];
-                            // Initialize Alpine on this element
-                            window.Alpine.initTree(alpineElement);
-                        }
+                        });
                     } catch (e) {
-                        console.warn('Failed to parse hx-skeleton-alpine data:', e);
+                        console.warn('Failed to apply hx-skeleton-alpine data:', e);
                     }
                 }
             }
