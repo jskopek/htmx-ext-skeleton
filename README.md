@@ -164,6 +164,21 @@ Add CSS to style your skeleton screens:
 }
 ```
 
+## Changelog
+
+### 0.2.0 (2025-10-04)
+
+- **Breaking/Enhancement**: `hx-skeleton` now accepts any CSS selector instead of just an ID (defaults to `#skeleton` for backward compatibility)
+- **New Feature**: Added `hx-skeleton-target` attribute to specify a different target for skeleton display
+- **Enhancement**: Improved target resolution - falls back to `hx-target`, then htmx default if `hx-skeleton-target` not specified
+
+### 0.1.1
+
+- Fixed issue that could cause skeleton to re-appear when navigating back in browser
+- Added tests
+- Updated Alpine.js integration to require x-data initialization within skeleton template
+- Added optional Alpine.js support to skeleton templates
+
 ## License
 
 MIT
