@@ -3,6 +3,12 @@
   "version": "0.1.1",
   "description": "An htmx extension for displaying skeleton screens during AJAX requests",
   "main": "htmx-ext-skeleton.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug"
+  },
   "keywords": [
     "htmx",
     "htmx-extension",
@@ -28,5 +34,8 @@
     "htmx-ext-skeleton.js",
     "README.md",
     "LICENSE"
-  ]
+  ],
+  "devDependencies": {
+    "@playwright/test": "^1.55.1"
+  }
 }
